@@ -34,7 +34,31 @@ benchmarks/
 
 ## Current Status
 
-Commit 1 initializes the TypeScript library skeleton only. No rate limiting behavior has been implemented yet.
+The current checkpoint provides a framework-independent in-memory fixed-window limiter through the core `RateLimiter` API.
+
+## Quick Start
+
+```ts
+import { MemoryStore, RateLimiter } from "api-rate-limiter";
+
+const limiter = new RateLimiter({
+  store: new MemoryStore(),
+  defaultPolicy: {
+    id: "api.default",
+    algorithm: "fixed-window",
+    limit: 100,
+    windowMs: 60_000,
+  },
+});
+
+const result = await limiter.check({ key: "user:123" });
+
+if (!result.allowed) {
+  console.log(`Retry after ${result.retryAfterMs}ms`);
+}
+```
+
+The core package does not depend on Express, Fastify, Redis, or HTTP request types. Middleware and distributed storage adapters are layered on top of the same core API.
 
 ## Development
 
