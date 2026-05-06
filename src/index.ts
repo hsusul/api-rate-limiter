@@ -16,6 +16,7 @@ export {
   isRateLimitExceeded,
   isRateLimiterError,
   ManualClock,
+  RateLimiter,
   RateLimiterConfigurationError,
   RateLimiterError,
   RateLimiterPolicyError,
@@ -23,7 +24,9 @@ export {
   systemClock,
   type Clock,
   type CreateRateLimitResultInput,
+  type RateLimiterCheckInput,
   type RateLimiterErrorOptions,
+  type RateLimiterOptions,
 } from "./core/index.js";
 
 export type {

@@ -27,3 +27,8 @@ export {
   systemClock,
   type Clock,
 } from "./clock.js";
+export {
+  RateLimiter,
+  type RateLimiterCheckInput,
+  type RateLimiterOptions,
+} from "./rate-limiter.js";
