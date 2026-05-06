@@ -1,5 +1,3 @@
-export const packageName = "api-rate-limiter";
-
 export type {
   RateLimitAlgorithm,
   RateLimitCheck,
@@ -8,16 +6,18 @@ export type {
   RateLimitResultStatus,
   RateLimitSubject,
   RateLimiterErrorCode,
-} from "./core/index.js";
+} from "./types.js";
 
+export { definePolicy } from "./policy.js";
 export {
   createRateLimitResult,
-  definePolicy,
   isRateLimitExceeded,
+  type CreateRateLimitResultInput,
+} from "./result.js";
+export {
   isRateLimiterError,
   RateLimiterConfigurationError,
   RateLimiterError,
   RateLimiterPolicyError,
-  type CreateRateLimitResultInput,
   type RateLimiterErrorOptions,
-} from "./core/index.js";
+} from "./errors.js";
