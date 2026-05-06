@@ -41,3 +41,5 @@ export type {
   RateLimitAlgorithmContext,
   RateLimitAlgorithmStrategy,
 } from "./algorithms/index.js";
+
+export { FixedWindowAlgorithm } from "./algorithms/index.js";
