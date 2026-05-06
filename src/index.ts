@@ -36,3 +36,8 @@ export type {
 } from "./stores/index.js";
 
 export { MemoryStore, type MemoryStoreOptions } from "./stores/index.js";
+
+export type {
+  RateLimitAlgorithmContext,
+  RateLimitAlgorithmStrategy,
+} from "./algorithms/index.js";
