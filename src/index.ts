@@ -25,3 +25,12 @@ export {
   type CreateRateLimitResultInput,
   type RateLimiterErrorOptions,
 } from "./core/index.js";
+
+export type {
+  Store,
+  StoreEntry,
+  StoreIncrementOptions,
+  StoreIncrementResult,
+  StoreSetOptions,
+  StoreValue,
+} from "./stores/index.js";
