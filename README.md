@@ -68,3 +68,7 @@ npm test
 npm run build
 npm run typecheck
 ```
+
+## Examples
+
+- `examples/express-basic`: Express route protected by the in-memory fixed-window limiter.
