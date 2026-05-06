@@ -46,3 +46,12 @@ export type {
 } from "./algorithms/index.js";
 
 export { FixedWindowAlgorithm } from "./algorithms/index.js";
+
+export {
+  createRateLimitHeaders,
+  defaultKeyGenerator,
+  type HeaderMap,
+  type KeyRequestLike,
+  type RateLimitHeaderOptions,
+  type RequestKeyGenerator,
+} from "./middleware/index.js";
