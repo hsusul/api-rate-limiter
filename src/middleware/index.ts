@@ -8,3 +8,7 @@ export {
   type KeyRequestLike,
   type RequestKeyGenerator,
 } from "./request-key.js";
+export {
+  expressRateLimit,
+  type ExpressRateLimitOptions,
+} from "./express.js";

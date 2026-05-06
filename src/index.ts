@@ -50,6 +50,8 @@ export { FixedWindowAlgorithm } from "./algorithms/index.js";
 export {
   createRateLimitHeaders,
   defaultKeyGenerator,
+  expressRateLimit,
+  type ExpressRateLimitOptions,
   type HeaderMap,
   type KeyRequestLike,
   type RateLimitHeaderOptions,
