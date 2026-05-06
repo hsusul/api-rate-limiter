@@ -60,6 +60,10 @@ if (!result.allowed) {
 
 The core package does not depend on Express, Fastify, Redis, or HTTP request types. Middleware and distributed storage adapters are layered on top of the same core API.
 
+## Failure Behavior
+
+`RateLimiter` defaults to `fail-open`: if storage or algorithm evaluation fails, the request is allowed and the returned result includes `failure` metadata. Set `failureBehavior: "fail-closed"` to block instead.
+
 ## Algorithms
 
 | Algorithm | Accuracy | Burst Handling | Storage Cost | Status |

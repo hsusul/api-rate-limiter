@@ -3,6 +3,8 @@ export const packageName = "api-rate-limiter";
 export type {
   RateLimitAlgorithm,
   RateLimitCheck,
+  RateLimitFailure,
+  RateLimitFailureBehavior,
   RateLimitPolicy,
   RateLimitResult,
   RateLimitResultStatus,

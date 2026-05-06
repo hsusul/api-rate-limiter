@@ -1,6 +1,8 @@
 export type {
   RateLimitAlgorithm,
   RateLimitCheck,
+  RateLimitFailure,
+  RateLimitFailureBehavior,
   RateLimitPolicy,
   RateLimitResult,
   RateLimitResultStatus,

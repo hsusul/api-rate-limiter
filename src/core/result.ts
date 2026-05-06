@@ -13,6 +13,7 @@ export interface CreateRateLimitResultInput {
   readonly checkedAt?: RateLimitResult["checkedAt"];
   readonly cost?: RateLimitResult["cost"];
   readonly retryAfterMs?: RateLimitResult["retryAfterMs"];
+  readonly failure?: RateLimitResult["failure"];
 }
 
 export function createRateLimitResult(
@@ -32,6 +33,7 @@ export function createRateLimitResult(
     ...(input.retryAfterMs === undefined
       ? {}
       : { retryAfterMs: Math.max(0, input.retryAfterMs) }),
+    ...(input.failure === undefined ? {} : { failure: input.failure }),
   };
 }
 
