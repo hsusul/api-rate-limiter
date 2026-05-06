@@ -6,3 +6,4 @@ export type {
   StoreSetOptions,
   StoreValue,
 } from "./store.js";
+export { MemoryStore, type MemoryStoreOptions } from "./memory-store.js";

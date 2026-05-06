@@ -34,3 +34,5 @@ export type {
   StoreSetOptions,
   StoreValue,
 } from "./stores/index.js";
+
+export { MemoryStore, type MemoryStoreOptions } from "./stores/index.js";
