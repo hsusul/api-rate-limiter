@@ -45,7 +45,7 @@ const limiter = new RateLimiter({
   store: new MemoryStore(),
   defaultPolicy: {
     id: "api.default",
-    algorithm: "fixed-window",
+    algorithm: "sliding-window",
     limit: 100,
     windowMs: 60_000,
   },
@@ -59,6 +59,18 @@ if (!result.allowed) {
 ```
 
 The core package does not depend on Express, Fastify, Redis, or HTTP request types. Middleware and distributed storage adapters are layered on top of the same core API.
+
+## Algorithms
+
+| Algorithm | Accuracy | Burst Handling | Storage Cost | Status |
+| --- | --- | --- | --- | --- |
+| Fixed window | Medium | Weak near boundaries | Low | Supported |
+| Sliding window counter | Good | Good | Low | Supported |
+| Token bucket | Good | Excellent | Medium | Planned |
+| Leaky bucket | Good | Smooths traffic | Medium | Planned |
+| Sliding log | Excellent | Excellent | High | Planned |
+
+See [docs/algorithms.md](docs/algorithms.md) for implementation notes and tradeoffs.
 
 ## Development
 
