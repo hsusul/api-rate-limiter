@@ -64,6 +64,10 @@ The core package does not depend on Express, Fastify, Redis, or HTTP request typ
 
 `RateLimiter` defaults to `fail-open`: if storage or algorithm evaluation fails, the request is allowed and the returned result includes `failure` metadata. Set `failureBehavior: "fail-closed"` to block instead.
 
+## Observability
+
+`RateLimiter` supports lightweight `onAllow`, `onBlock`, and `onError` hooks. Events include policy ID, algorithm, result, latency, and a hashed key. Raw request keys are not exposed in events by default.
+
 ## Algorithms
 
 | Algorithm | Accuracy | Burst Handling | Storage Cost | Status |

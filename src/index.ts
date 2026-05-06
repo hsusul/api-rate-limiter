@@ -62,3 +62,11 @@ export {
   type RateLimitHeaderOptions,
   type RequestKeyGenerator,
 } from "./middleware/index.js";
+
+export {
+  hashRateLimitKey,
+  type RateLimiterEvent,
+  type RateLimiterEventKind,
+  type RateLimiterHooks,
+  type SafeRateLimitKey,
+} from "./observability/index.js";

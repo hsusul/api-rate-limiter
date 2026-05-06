@@ -1,6 +1,11 @@
 import { FixedWindowAlgorithm } from "../algorithms/fixed-window.js";
 import type { RateLimitAlgorithmStrategy } from "../algorithms/index.js";
 import { SlidingWindowAlgorithm } from "../algorithms/sliding-window.js";
+import {
+  hashRateLimitKey,
+  type RateLimiterEvent,
+  type RateLimiterHooks,
+} from "../observability/events.js";
 import type { Store } from "../stores/store.js";
 import { systemClock, type Clock } from "./clock.js";
 import { createRateLimitResult } from "./result.js";
@@ -19,6 +24,7 @@ export interface RateLimiterOptions {
   readonly algorithms?: readonly RateLimitAlgorithmStrategy[];
   readonly defaultPolicy?: RateLimitPolicy;
   readonly failureBehavior?: RateLimitFailureBehavior;
+  readonly hooks?: RateLimiterHooks;
 }
 
 export interface RateLimiterCheckInput {
@@ -39,11 +45,14 @@ export class RateLimiter {
 
   readonly #failureBehavior: RateLimitFailureBehavior;
 
+  readonly #hooks: RateLimiterHooks | undefined;
+
   constructor(options: RateLimiterOptions) {
     this.#store = options.store;
     this.#clock = options.clock ?? systemClock;
     this.#defaultPolicy = options.defaultPolicy;
     this.#failureBehavior = options.failureBehavior ?? "fail-open";
+    this.#hooks = options.hooks;
     this.#algorithms = new Map(
       (
         options.algorithms ?? [
@@ -74,22 +83,54 @@ export class RateLimiter {
     const now = input.now ?? this.#clock.now();
     const cost = input.cost ?? policy.cost ?? 1;
 
+    const startedAt = this.#clock.now();
+
+    const result = await this.#evaluateAlgorithm({
+      algorithm,
+      key: input.key,
+      policy,
+      now,
+      cost,
+    });
+    const kind = result.failure !== undefined
+      ? "error"
+      : result.allowed
+        ? "allow"
+        : "block";
+
+    await this.#emit(kind, {
+      input,
+      policy,
+      result,
+      startedAt,
+    });
+
+    return result;
+  }
+
+  async #evaluateAlgorithm(input: {
+    readonly algorithm: RateLimitAlgorithmStrategy;
+    readonly key: RateLimitSubject;
+    readonly policy: RateLimitPolicy;
+    readonly now: number;
+    readonly cost: number;
+  }): Promise<RateLimitResult> {
     try {
-      return await algorithm.evaluate({
+      return await input.algorithm.evaluate({
         key: input.key,
-        policy,
+        policy: input.policy,
         store: this.#store,
         clock: this.#clock,
-        now,
-        cost,
+        now: input.now,
+        cost: input.cost,
       });
     } catch (error) {
       return this.#createFailureResult({
         error,
         key: input.key,
-        policy,
-        now,
-        cost,
+        policy: input.policy,
+        now: input.now,
+        cost: input.cost,
       });
     }
   }
@@ -121,6 +162,46 @@ export class RateLimiter {
         message: errorMessage(input.error),
       },
     });
+  }
+
+  async #emit(
+    kind: RateLimiterEvent["kind"],
+    input: {
+      readonly input: RateLimiterCheckInput;
+      readonly policy: RateLimitPolicy;
+      readonly result: RateLimitResult;
+      readonly startedAt: number;
+    },
+  ): Promise<void> {
+    const hook =
+      kind === "allow"
+        ? this.#hooks?.onAllow
+        : kind === "block"
+          ? this.#hooks?.onBlock
+          : this.#hooks?.onError;
+
+    if (hook === undefined) {
+      return;
+    }
+
+    const event: RateLimiterEvent = {
+      kind,
+      policyId: input.policy.id,
+      algorithm: input.policy.algorithm,
+      key: {
+        hash: hashRateLimitKey(input.input.key),
+      },
+      result: input.result,
+      latencyMs: Math.max(0, this.#clock.now() - input.startedAt),
+    };
+
+    try {
+      await hook(event);
+    } catch (error) {
+      if (this.#hooks?.throwOnHookError === true) {
+        throw error;
+      }
+    }
   }
 }
 
