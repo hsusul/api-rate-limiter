@@ -1,5 +1,6 @@
 import { FixedWindowAlgorithm } from "../algorithms/fixed-window.js";
 import type { RateLimitAlgorithmStrategy } from "../algorithms/index.js";
+import { SlidingWindowAlgorithm } from "../algorithms/sliding-window.js";
 import type { Store } from "../stores/store.js";
 import { systemClock, type Clock } from "./clock.js";
 import { RateLimiterPolicyError } from "./errors.js";
@@ -38,10 +39,12 @@ export class RateLimiter {
     this.#clock = options.clock ?? systemClock;
     this.#defaultPolicy = options.defaultPolicy;
     this.#algorithms = new Map(
-      (options.algorithms ?? [new FixedWindowAlgorithm()]).map((algorithm) => [
-        algorithm.name,
-        algorithm,
-      ]),
+      (
+        options.algorithms ?? [
+          new FixedWindowAlgorithm(),
+          new SlidingWindowAlgorithm(),
+        ]
+      ).map((algorithm) => [algorithm.name, algorithm]),
     );
   }
 

@@ -45,7 +45,10 @@ export type {
   RateLimitAlgorithmStrategy,
 } from "./algorithms/index.js";
 
-export { FixedWindowAlgorithm } from "./algorithms/index.js";
+export {
+  FixedWindowAlgorithm,
+  SlidingWindowAlgorithm,
+} from "./algorithms/index.js";
 
 export {
   createRateLimitHeaders,
