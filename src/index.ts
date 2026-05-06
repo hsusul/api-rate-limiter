@@ -15,9 +15,13 @@ export {
   definePolicy,
   isRateLimitExceeded,
   isRateLimiterError,
+  ManualClock,
   RateLimiterConfigurationError,
   RateLimiterError,
   RateLimiterPolicyError,
+  SystemClock,
+  systemClock,
+  type Clock,
   type CreateRateLimitResultInput,
   type RateLimiterErrorOptions,
 } from "./core/index.js";

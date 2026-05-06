@@ -21,3 +21,9 @@ export {
   RateLimiterPolicyError,
   type RateLimiterErrorOptions,
 } from "./errors.js";
+export {
+  ManualClock,
+  SystemClock,
+  systemClock,
+  type Clock,
+} from "./clock.js";
