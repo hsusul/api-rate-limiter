@@ -17,6 +17,7 @@
     "README.md"
   ],
   "scripts": {
+    "bench": "tsc -p tsconfig.bench.json && node .bench/benchmarks/limiter.bench.js",
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"

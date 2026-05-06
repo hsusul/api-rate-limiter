@@ -92,3 +92,13 @@ npm run typecheck
 ## Examples
 
 - `examples/express-basic`: Express route protected by the in-memory fixed-window limiter.
+
+## Benchmarks
+
+Run the in-memory core benchmark with:
+
+```sh
+npm run bench
+```
+
+See [benchmarks/README.md](benchmarks/README.md) for covered scenarios.
