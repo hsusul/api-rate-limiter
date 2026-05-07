@@ -40,7 +40,12 @@ export type {
   StoreValue,
 } from "./stores/index.js";
 
-export { MemoryStore, type MemoryStoreOptions } from "./stores/index.js";
+export {
+  MemoryStore,
+  RedisStore,
+  type MemoryStoreOptions,
+  type RedisStoreOptions,
+} from "./stores/index.js";
 
 export type {
   RateLimitAlgorithmContext,
