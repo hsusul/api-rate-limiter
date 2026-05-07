@@ -18,6 +18,7 @@
   ],
   "scripts": {
     "bench": "tsc -p tsconfig.bench.json && node .bench/benchmarks/limiter.bench.js",
+    "bench:http": "tsc -p tsconfig.bench.json && node .bench/benchmarks/http-autocannon.js",
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
@@ -32,8 +33,10 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/autocannon": "^7.12.7",
     "@types/express": "^5.0.6",
     "@types/supertest": "^7.2.0",
+    "autocannon": "^8.0.0",
     "express": "^5.2.1",
     "supertest": "^7.2.2",
     "typescript": "^5.8.3",
