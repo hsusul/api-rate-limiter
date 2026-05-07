@@ -166,11 +166,15 @@ npm run build
 npm run typecheck
 ```
 
+## CI
+
+The GitHub Actions workflow runs install, tests, build, typecheck, and Redis integration tests against a Redis service.
+
 Redis integration tests are opt-in:
 
 ```sh
 docker compose up -d redis
-RUN_REDIS_TESTS=1 npm test -- tests/integration/redis-store.test.ts
+RUN_REDIS_TESTS=1 npm run test:redis
 ```
 
 ## Examples
