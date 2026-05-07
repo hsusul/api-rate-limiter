@@ -92,6 +92,9 @@ npm run typecheck
 ## Examples
 
 - `examples/express-basic`: Express route protected by the in-memory fixed-window limiter.
+- `examples/express-redis`: Express route protected by Redis-backed distributed limiting.
+
+Use Redis for multi-instance deployments where every process must share the same quota state. The in-memory store is suitable for local development and single-process services.
 
 ## Benchmarks
 
