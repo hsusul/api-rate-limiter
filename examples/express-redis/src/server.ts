@@ -1,8 +1,8 @@
 import express from "express";
 import {
-  expressRateLimit,
   RateLimiter,
 } from "api-rate-limiter";
+import { expressRateLimit } from "api-rate-limiter/express";
 import { RedisStore } from "api-rate-limiter/redis";
 
 const app = express();

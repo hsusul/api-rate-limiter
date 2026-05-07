@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { defaultKeyGenerator } from "../../src/index.js";
+import { defaultKeyGenerator } from "../../src/express.js";
 
 describe("defaultKeyGenerator", () => {
   it("uses x-forwarded-for before direct IP fields", () => {

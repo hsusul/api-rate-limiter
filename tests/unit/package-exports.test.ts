@@ -3,15 +3,18 @@ import { describe, expect, it } from "vitest";
 import {
   MemoryStore,
   RateLimiter,
-  expressRateLimit,
   type Store,
 } from "../../src/index.js";
+import { expressRateLimit } from "../../src/express.js";
 import { RedisStore } from "../../src/redis.js";
 
 describe("public package exports", () => {
-  it("exports core, memory, and Express APIs from the root entrypoint", () => {
+  it("exports core and memory APIs from the root entrypoint", () => {
     expect(RateLimiter).toBeTypeOf("function");
     expect(MemoryStore).toBeTypeOf("function");
+  });
+
+  it("exports Express middleware from the Express adapter entrypoint", () => {
     expect(expressRateLimit).toBeTypeOf("function");
   });
 

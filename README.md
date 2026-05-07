@@ -43,7 +43,8 @@ if (!result.allowed) {
 
 ```ts
 import express from "express";
-import { expressRateLimit, MemoryStore, RateLimiter } from "api-rate-limiter";
+import { MemoryStore, RateLimiter } from "api-rate-limiter";
+import { expressRateLimit } from "api-rate-limiter/express";
 
 const app = express();
 

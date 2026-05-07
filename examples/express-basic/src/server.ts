@@ -1,9 +1,9 @@
 import express from "express";
 import {
-  expressRateLimit,
   MemoryStore,
   RateLimiter,
 } from "api-rate-limiter";
+import { expressRateLimit } from "api-rate-limiter/express";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);

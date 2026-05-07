@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { createRateLimitHeaders, createRateLimitResult } from "../../src/index.js";
+import { createRateLimitResult } from "../../src/index.js";
+import { createRateLimitHeaders } from "../../src/express.js";
 
 describe("createRateLimitHeaders", () => {
   it("creates standard rate limit headers for allowed results", () => {

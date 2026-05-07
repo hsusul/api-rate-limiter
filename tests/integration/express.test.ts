@@ -2,13 +2,8 @@ import express from "express";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 
-import {
-  expressRateLimit,
-  ManualClock,
-  MemoryStore,
-  RateLimiter,
-  type RateLimitPolicy,
-} from "../../src/index.js";
+import { ManualClock, MemoryStore, RateLimiter, type RateLimitPolicy } from "../../src/index.js";
+import { expressRateLimit } from "../../src/express.js";
 
 function createPolicy(overrides: Partial<RateLimitPolicy> = {}): RateLimitPolicy {
   return {

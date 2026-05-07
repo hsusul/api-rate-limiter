@@ -15,6 +15,10 @@
     "./redis": {
       "types": "./dist/redis.d.ts",
       "import": "./dist/redis.js"
+    },
+    "./express": {
+      "types": "./dist/express.d.ts",
+      "import": "./dist/express.js"
     }
   },
   "files": [
@@ -54,9 +58,13 @@
     "node": ">=20"
   },
   "peerDependencies": {
+    "express": "^5.0.0",
     "redis": "^5.12.1"
   },
   "peerDependenciesMeta": {
+    "express": {
+      "optional": true
+    },
     "redis": {
       "optional": true
     }

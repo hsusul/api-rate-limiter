@@ -2,12 +2,12 @@ import { createServer, type Server } from "node:http";
 import express from "express";
 import autocannon from "autocannon";
 import {
-  expressRateLimit,
   ManualClock,
   MemoryStore,
   RateLimiter,
   type RateLimitPolicy,
 } from "../src/index.js";
+import { expressRateLimit } from "../src/express.js";
 
 interface Scenario {
   readonly name: string;
