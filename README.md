@@ -1,40 +1,21 @@
 # API Rate Limiter
 
-A portfolio-quality TypeScript/Node.js library for API rate limiting.
+A production-style TypeScript/Node.js API rate limiter with pluggable algorithms, storage adapters, Express middleware, Redis-backed distributed mode, tests, and benchmarks.
 
-This project is being built as a reusable package first. The core limiter will remain framework-independent, with middleware adapters layered on top for HTTP frameworks.
+The core limiter is framework-independent. HTTP middleware and storage adapters sit on top of the same `RateLimiter` API.
 
-## Planned Scope
+## Features
 
-- Framework-independent core rate limiter
-- Pluggable rate limiting algorithms
-- In-memory storage adapter first
-- Redis storage adapter for distributed mode later
-- Express middleware first
-- Fastify middleware later
-- Vitest test suite
-- Benchmarks and production notes
-
-## Project Structure
-
-```text
-src/
-  core/
-  algorithms/
-  stores/
-  middleware/
-  observability/
-tests/
-  unit/
-  integration/
-docs/
-examples/
-benchmarks/
-```
-
-## Current Status
-
-The current checkpoint provides a framework-independent in-memory fixed-window limiter through the core `RateLimiter` API.
+- Framework-independent `RateLimiter` core
+- Fixed-window and sliding-window counter algorithms
+- In-memory store for local and single-process usage
+- Redis store for distributed multi-instance usage
+- Express middleware
+- Standard and legacy rate limit headers
+- Configurable fail-open or fail-closed behavior
+- Lightweight observability hooks
+- Deterministic tests with manual clocks
+- Core and HTTP benchmark scripts
 
 ## Quick Start
 
@@ -58,15 +39,62 @@ if (!result.allowed) {
 }
 ```
 
-The core package does not depend on Express, Fastify, Redis, or HTTP request types. Middleware and distributed storage adapters are layered on top of the same core API.
+## Express Usage
 
-## Failure Behavior
+```ts
+import express from "express";
+import { expressRateLimit, MemoryStore, RateLimiter } from "api-rate-limiter";
 
-`RateLimiter` defaults to `fail-open`: if storage or algorithm evaluation fails, the request is allowed and the returned result includes `failure` metadata. Set `failureBehavior: "fail-closed"` to block instead.
+const app = express();
 
-## Observability
+const limiter = new RateLimiter({
+  store: new MemoryStore(),
+  defaultPolicy: {
+    id: "api.default",
+    algorithm: "fixed-window",
+    limit: 50,
+    windowMs: 60_000,
+  },
+});
 
-`RateLimiter` supports lightweight `onAllow`, `onBlock`, and `onError` hooks. Events include policy ID, algorithm, result, latency, and a hashed key. Raw request keys are not exposed in events by default.
+app.get(
+  "/api/widgets",
+  expressRateLimit({
+    limiter,
+    keyGenerator: (request) => request.ip ?? "unknown",
+  }),
+  (_request, response) => {
+    response.json({ ok: true });
+  },
+);
+```
+
+## Redis Usage
+
+Redis is exposed through a separate adapter entrypoint so in-memory users do not need Redis at runtime.
+
+```ts
+import { RateLimiter } from "api-rate-limiter";
+import { RedisStore } from "api-rate-limiter/redis";
+
+const store = new RedisStore({
+  url: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",
+});
+
+await store.connect();
+
+const limiter = new RateLimiter({
+  store,
+  defaultPolicy: {
+    id: "api.default",
+    algorithm: "sliding-window",
+    limit: 100,
+    windowMs: 60_000,
+  },
+});
+```
+
+Use Redis when multiple Node.js processes, containers, or instances must share quota state. The in-memory store is suitable for local development and single-process services.
 
 ## Algorithms
 
@@ -78,7 +106,55 @@ The core package does not depend on Express, Fastify, Redis, or HTTP request typ
 | Leaky bucket | Good | Smooths traffic | Medium | Planned |
 | Sliding log | Excellent | Excellent | High | Planned |
 
-See [docs/algorithms.md](docs/algorithms.md) for implementation notes and tradeoffs.
+See [docs/algorithms.md](docs/algorithms.md) for algorithm notes and tradeoffs.
+
+## Failure Behavior
+
+`RateLimiter` defaults to `fail-open`: if storage or algorithm evaluation fails, the request is allowed and the returned result includes `failure` metadata.
+
+Use `failureBehavior: "fail-closed"` to block requests during limiter failures:
+
+```ts
+const limiter = new RateLimiter({
+  store,
+  failureBehavior: "fail-closed",
+  defaultPolicy,
+});
+```
+
+## Observability
+
+`RateLimiter` supports lightweight hooks:
+
+```ts
+const limiter = new RateLimiter({
+  store,
+  defaultPolicy,
+  hooks: {
+    onAllow: (event) => console.log(event.policyId, event.latencyMs),
+    onBlock: (event) => console.log(event.result.retryAfterMs),
+    onError: (event) => console.error(event.result.failure),
+  },
+});
+```
+
+Events include policy ID, algorithm, result, latency, and a hashed key. Raw request keys are not exposed by default.
+
+## Benchmarks
+
+Core in-memory benchmark:
+
+```sh
+npm run bench
+```
+
+HTTP middleware benchmark:
+
+```sh
+npm run bench:http
+```
+
+See [benchmarks/README.md](benchmarks/README.md) for scenarios and caveats.
 
 ## Development
 
@@ -89,19 +165,35 @@ npm run build
 npm run typecheck
 ```
 
+Redis integration tests are opt-in:
+
+```sh
+docker compose up -d redis
+RUN_REDIS_TESTS=1 npm test -- tests/integration/redis-store.test.ts
+```
+
 ## Examples
 
 - `examples/express-basic`: Express route protected by the in-memory fixed-window limiter.
 - `examples/express-redis`: Express route protected by Redis-backed distributed limiting.
 
-Use Redis for multi-instance deployments where every process must share the same quota state. The in-memory store is suitable for local development and single-process services.
+## Documentation
 
-## Benchmarks
+- [Redis design](docs/redis-design.md)
+- [Production notes](docs/production-notes.md)
+- [Algorithm notes](docs/algorithms.md)
 
-Run the in-memory core benchmark with:
+## Limitations
 
-```sh
-npm run bench
-```
+- Fastify middleware is not implemented yet.
+- Redis sliding-window decisions use a generic store flow with atomic current-bucket increments, not a single multi-key Lua decision.
+- Multi-region strongly consistent limiting is out of scope.
+- This package is not a WAF, bot detector, authentication system, or billing system.
 
-See [benchmarks/README.md](benchmarks/README.md) for covered scenarios.
+## Roadmap
+
+- Fastify middleware
+- Token bucket algorithm
+- Prometheus metrics adapter
+- HTTP benchmark result snapshots
+- Redis-specific Lua optimization for sliding-window decisions
