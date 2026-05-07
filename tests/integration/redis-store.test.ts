@@ -47,6 +47,18 @@ function createFixedPolicy(overrides: Partial<RateLimitPolicy> = {}): RateLimitP
   };
 }
 
+function createSlidingPolicy(
+  overrides: Partial<RateLimitPolicy> = {},
+): RateLimitPolicy {
+  return {
+    id: "api.default",
+    algorithm: "sliding-window",
+    limit: 2,
+    windowMs: 1_000,
+    ...overrides,
+  };
+}
+
 describe("Redis store integration scaffold", () => {
   it("defines Redis integration configuration", () => {
     expect(getRedisIntegrationConfig().url).toMatch(/^redis:\/\//);
@@ -161,5 +173,99 @@ describe("RedisStore fixed-window parity without Redis", () => {
       value: 1,
       expiresAt: 2_000,
     });
+  });
+});
+
+describeRedis("RedisStore sliding-window integration", () => {
+  beforeAll(async () => {
+    const store = createRedisStore("sliding-preflight");
+
+    try {
+      await store.set("preflight", "ok", { ttlMs: 1_000 });
+      await expect(store.get("preflight")).resolves.toMatchObject({
+        value: "ok",
+      });
+    } catch (error) {
+      throw new Error(redisUnavailableMessage(error));
+    } finally {
+      await store.disconnect();
+    }
+  }, 2_000);
+
+  it("stores current sliding-window buckets with TTL", async () => {
+    const store = createRedisStore("sliding-ttl");
+    const clock = new ManualClock(1_900);
+    const limiter = new RateLimiter({
+      store,
+      clock,
+      defaultPolicy: createSlidingPolicy({ limit: 10 }),
+    });
+
+    await limiter.check({ key: "user:123" });
+
+    const bucket = await store.get<number>(
+      "sliding-window:api.default:user:123:1000",
+    );
+
+    expect(bucket?.value).toBe(1);
+    expect(bucket?.expiresAt).toBeGreaterThan(Date.now());
+  });
+
+  it("uses previous and current buckets for weighted sliding-window decisions", async () => {
+    const store = createRedisStore("sliding-weighted");
+    const clock = new ManualClock(1_900);
+    const limiter = new RateLimiter({
+      store,
+      clock,
+      defaultPolicy: createSlidingPolicy({ limit: 2 }),
+    });
+
+    await limiter.check({ key: "user:123" });
+    await limiter.check({ key: "user:123" });
+
+    clock.set(2_100);
+
+    await expect(limiter.check({ key: "user:123" })).resolves.toMatchObject({
+      allowed: false,
+      algorithm: "sliding-window",
+      remaining: 0,
+    });
+  });
+
+  it("shares sliding-window state across limiter instances", async () => {
+    const store = createRedisStore("sliding-shared");
+    const policy = createSlidingPolicy({ limit: 1 });
+    const limiterA = new RateLimiter({
+      store,
+      clock: new ManualClock(1_000),
+      defaultPolicy: policy,
+    });
+    const limiterB = new RateLimiter({
+      store,
+      clock: new ManualClock(1_000),
+      defaultPolicy: policy,
+    });
+
+    await expect(limiterA.check({ key: "user:123" })).resolves.toMatchObject({
+      allowed: true,
+    });
+    await expect(limiterB.check({ key: "user:123" })).resolves.toMatchObject({
+      allowed: false,
+    });
+  });
+
+  it("enforces sliding-window limits under concurrent requests", async () => {
+    const store = createRedisStore("concurrent-sliding");
+    const limiter = new RateLimiter({
+      store,
+      clock: new ManualClock(1_000),
+      defaultPolicy: createSlidingPolicy({ limit: 5 }),
+    });
+    const results = await Promise.all(
+      Array.from({ length: 20 }, () => limiter.check({ key: "user:123" })),
+    );
+
+    expect(results.filter((result) => result.allowed)).toHaveLength(5);
+    expect(results.filter((result) => !result.allowed)).toHaveLength(15);
   });
 });

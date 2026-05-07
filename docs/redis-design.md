@@ -48,7 +48,9 @@ Sliding window needs:
 - preserve or initialize current window TTL
 - return enough data to calculate the result consistently
 
-For Redis, these operations should use Lua scripts or equivalent atomic command flows. Plain `GET` plus `INCR` plus `EXPIRE` sequences can race under concurrency.
+For Redis, per-key increment and first-write expiry must be atomic. The current `RedisStore.increment()` uses a Lua script for `INCRBY` plus first-write `PEXPIRE`.
+
+The current sliding-window algorithm performs a previous-bucket read plus current-bucket atomic increment as two store operations. This is sufficient for the existing counter approximation, but it is not a single multi-key atomic decision. A future Redis-specific sliding-window optimization can move previous/current bucket handling into one Lua script if stricter concurrency semantics are needed.
 
 ## Fixed Window Storage Approach
 
