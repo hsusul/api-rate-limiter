@@ -10,6 +10,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./redis": {
+      "types": "./dist/redis.d.ts",
+      "import": "./dist/redis.js"
     }
   },
   "files": [
@@ -38,6 +42,7 @@
     "@types/supertest": "^7.2.0",
     "autocannon": "^8.0.0",
     "express": "^5.2.1",
+    "redis": "^5.12.1",
     "supertest": "^7.2.2",
     "typescript": "^5.8.3",
     "vitest": "^3.1.2"
@@ -45,7 +50,12 @@
   "engines": {
     "node": ">=20"
   },
-  "dependencies": {
+  "peerDependencies": {
     "redis": "^5.12.1"
+  },
+  "peerDependenciesMeta": {
+    "redis": {
+      "optional": true
+    }
   }
 }

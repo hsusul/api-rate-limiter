@@ -42,9 +42,7 @@ export type {
 
 export {
   MemoryStore,
-  RedisStore,
   type MemoryStoreOptions,
-  type RedisStoreOptions,
 } from "./stores/index.js";
 
 export type {

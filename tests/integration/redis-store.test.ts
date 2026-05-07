@@ -4,9 +4,9 @@ import {
   ManualClock,
   MemoryStore,
   RateLimiter,
-  RedisStore,
   type RateLimitPolicy,
 } from "../../src/index.js";
+import { RedisStore } from "../../src/redis.js";
 import {
   getRedisIntegrationConfig,
   redisIntegrationSkipReason,

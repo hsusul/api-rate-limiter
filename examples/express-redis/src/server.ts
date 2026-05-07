@@ -2,8 +2,8 @@ import express from "express";
 import {
   expressRateLimit,
   RateLimiter,
-  RedisStore,
 } from "api-rate-limiter";
+import { RedisStore } from "api-rate-limiter/redis";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
