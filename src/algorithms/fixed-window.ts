@@ -16,7 +16,10 @@ export class FixedWindowAlgorithm implements RateLimitAlgorithmStrategy {
       ttlMs: context.policy.windowMs,
     });
     const allowed = counter.value <= context.policy.limit;
-    const resetAtMs = counter.expiresAt ?? context.now + context.policy.windowMs;
+    const resetAtMs =
+      counter.expiresInMs === undefined
+        ? counter.expiresAt ?? context.now + context.policy.windowMs
+        : context.now + counter.expiresInMs;
     const retryAfterMs = allowed ? undefined : resetAtMs - context.now;
 
     return createRateLimitResult({

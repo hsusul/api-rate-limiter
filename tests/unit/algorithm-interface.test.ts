@@ -92,6 +92,7 @@ describe("algorithm interface", () => {
     });
     await expect(store.get<number>("user:123")).resolves.toEqual({
       value: 2,
+      expiresInMs: 60_000,
       expiresAt: 61_000,
     });
   });

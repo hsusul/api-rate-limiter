@@ -76,6 +76,7 @@ export class RedisStore implements Store {
     return {
       value: decodeValue(rawValue) as TValue,
       ...expiresAtFromTtl(ttlMs),
+      ...expiresInFromTtl(ttlMs),
     };
   }
 
@@ -116,6 +117,7 @@ export class RedisStore implements Store {
     return {
       value,
       ...expiresAtFromTtl(remainingTtlMs),
+      ...expiresInFromTtl(remainingTtlMs),
     };
   }
 
@@ -149,4 +151,8 @@ function decodeValue(value: string): StoreValue {
 
 function expiresAtFromTtl(ttlMs: number): Pick<StoreEntry, "expiresAt"> {
   return ttlMs >= 0 ? { expiresAt: Date.now() + ttlMs } : {};
+}
+
+function expiresInFromTtl(ttlMs: number): Pick<StoreEntry, "expiresInMs"> {
+  return ttlMs >= 0 ? { expiresInMs: ttlMs } : {};
 }

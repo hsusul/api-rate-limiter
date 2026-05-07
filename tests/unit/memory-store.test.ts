@@ -39,6 +39,7 @@ describe("MemoryStore", () => {
 
     await expect(store.get("policy:user")).resolves.toEqual({
       value: "value",
+      expiresInMs: 500,
       expiresAt: 1_500,
     });
 
@@ -46,6 +47,7 @@ describe("MemoryStore", () => {
 
     await expect(store.get("policy:user")).resolves.toEqual({
       value: "value",
+      expiresInMs: 1,
       expiresAt: 1_500,
     });
 
@@ -95,6 +97,7 @@ describe("MemoryStore", () => {
       store.increment("counter:user", { ttlMs: 1_000 }),
     ).resolves.toEqual({
       value: 1,
+      expiresInMs: 1_000,
       expiresAt: 11_000,
     });
 
@@ -104,6 +107,7 @@ describe("MemoryStore", () => {
       store.increment("counter:user", { amount: 2, ttlMs: 2_000 }),
     ).resolves.toEqual({
       value: 3,
+      expiresInMs: 500,
       expiresAt: 11_000,
     });
 
@@ -123,6 +127,7 @@ describe("MemoryStore", () => {
       store.increment("counter:user", { amount: 3, ttlMs: 2_000 }),
     ).resolves.toEqual({
       value: 3,
+      expiresInMs: 2_000,
       expiresAt: 13_000,
     });
   });

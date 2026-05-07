@@ -90,8 +90,10 @@ describeRedis("RedisStore fixed-window integration", () => {
 
     expect(first.value).toBe(1);
     expect(first.expiresAt).toBeGreaterThan(Date.now());
+    expect(first.expiresInMs).toBeGreaterThan(0);
     expect(second.value).toBe(3);
     expect(second.expiresAt).toBeGreaterThan(Date.now());
+    expect(second.expiresInMs).toBeGreaterThan(0);
     expect(second.expiresAt).toBeLessThanOrEqual((first.expiresAt ?? 0) + 50);
   });
 
@@ -103,6 +105,7 @@ describeRedis("RedisStore fixed-window integration", () => {
 
     expect(entry?.value).toEqual({ count: 1 });
     expect(entry?.expiresAt).toBeGreaterThan(Date.now());
+    expect(entry?.expiresInMs).toBeGreaterThan(0);
     await expect(store.delete("value")).resolves.toBe(true);
     await expect(store.get("value")).resolves.toBeUndefined();
   });

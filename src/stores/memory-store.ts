@@ -30,7 +30,7 @@ export class MemoryStore implements Store {
       return undefined;
     }
 
-    return entry as StoreEntry<TValue>;
+    return this.#withRelativeExpiry(entry) as StoreEntry<TValue>;
   }
 
   async set<TValue extends StoreValue = StoreValue>(
@@ -65,6 +65,7 @@ export class MemoryStore implements Store {
     return {
       value,
       ...expiry,
+      ...this.#relativeExpiryFromAbsolute(expiry.expiresAt),
     };
   }
 
@@ -104,5 +105,20 @@ export class MemoryStore implements Store {
 
   #expiryFromTtl(ttlMs: number | undefined): Pick<StoreEntry, "expiresAt"> {
     return ttlMs === undefined ? {} : { expiresAt: this.#clock.now() + ttlMs };
+  }
+
+  #withRelativeExpiry(entry: StoreEntry): StoreEntry {
+    return {
+      ...entry,
+      ...this.#relativeExpiryFromAbsolute(entry.expiresAt),
+    };
+  }
+
+  #relativeExpiryFromAbsolute(
+    expiresAt: number | undefined,
+  ): Pick<StoreEntry, "expiresInMs"> {
+    return expiresAt === undefined
+      ? {}
+      : { expiresInMs: Math.max(0, expiresAt - this.#clock.now()) };
   }
 }

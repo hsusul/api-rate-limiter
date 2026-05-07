@@ -66,6 +66,9 @@ class TestStore implements Store {
     return {
       value: nextValue,
       ...(expiresAt === undefined ? {} : { expiresAt }),
+      ...(expiresAt === undefined
+        ? {}
+        : { expiresInMs: Math.max(0, expiresAt - this.#clock.now()) }),
     };
   }
 
@@ -117,6 +120,7 @@ describe("store contract", () => {
       store.increment("counter:user", { ttlMs: 1_000 }),
     ).resolves.toEqual({
       value: 1,
+      expiresInMs: 1_000,
       expiresAt: 11_000,
     });
 
@@ -124,6 +128,7 @@ describe("store contract", () => {
       store.increment("counter:user", { amount: 4, ttlMs: 1_000 }),
     ).resolves.toEqual({
       value: 5,
+      expiresInMs: 1_000,
       expiresAt: 11_000,
     });
 

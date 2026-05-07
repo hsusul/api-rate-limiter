@@ -17,11 +17,13 @@ export interface StoreIncrementOptions {
 
 export interface StoreIncrementResult {
   readonly value: number;
+  readonly expiresInMs?: number;
   readonly expiresAt?: number;
 }
 
 export interface StoreEntry<TValue extends StoreValue = StoreValue> {
   readonly value: TValue;
+  readonly expiresInMs?: number;
   readonly expiresAt?: number;
 }
 

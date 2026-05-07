@@ -66,7 +66,7 @@ On request:
 2. If the key was newly created, set `PEXPIRE` to `windowMs`.
 3. Return the current count and remaining TTL.
 
-The algorithm uses the returned count to decide allow/block and the remaining TTL to calculate `resetAt` and `retryAfterMs`.
+The algorithm uses the returned count to decide allow/block and the remaining TTL to calculate `resetAt` and `retryAfterMs` from the limiter clock. Redis still owns actual key expiry in wall-clock time, but algorithm-facing result timestamps should be derived from relative Redis TTL plus the limiter's `Clock` to avoid mixed-clock metadata.
 
 ## Sliding Window Storage Approach
 
