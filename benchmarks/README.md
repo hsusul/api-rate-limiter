@@ -21,7 +21,8 @@ npm run bench:http
 
 HTTP scenarios:
 
+- bare Express baseline
 - allowed-heavy Express middleware traffic
 - blocked-heavy Express middleware traffic
 
-The benchmark is intentionally simple and local. Treat results as directional rather than authoritative; include machine, Node.js version, and git commit when publishing numbers.
+The HTTP benchmark reports each middleware scenario against the bare Express baseline. Treat results as directional rather than authoritative; include machine, Node.js version, and git commit when publishing numbers.

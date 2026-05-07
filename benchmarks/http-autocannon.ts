@@ -11,11 +11,14 @@ import { expressRateLimit } from "../src/express.js";
 
 interface Scenario {
   readonly name: string;
-  readonly policy: RateLimitPolicy;
-  readonly key: string;
+  readonly policy?: RateLimitPolicy;
+  readonly key?: string;
 }
 
 const scenarios: readonly Scenario[] = [
+  {
+    name: "baseline",
+  },
   {
     name: "allowed-heavy",
     key: "bench:allowed",
@@ -38,6 +41,8 @@ const scenarios: readonly Scenario[] = [
   },
 ];
 
+let baselineRequestsPerSecond: number | undefined;
+
 for (const scenario of scenarios) {
   const server = await createBenchmarkServer(scenario);
 
@@ -49,6 +54,16 @@ for (const scenario of scenarios) {
     }
 
     const result = await runAutocannon(`http://127.0.0.1:${address.port}/limited`);
+    const overhead = baselineRequestsPerSecond === undefined
+      ? "baseline"
+      : `${Math.max(
+          0,
+          ((baselineRequestsPerSecond - result.requests.average) /
+            baselineRequestsPerSecond) *
+            100,
+        ).toFixed(1)}% overhead`;
+
+    baselineRequestsPerSecond ??= result.requests.average;
 
     console.log(
       [
@@ -58,6 +73,7 @@ for (const scenario of scenarios) {
         `p99=${result.latency.p99.toFixed(2)}ms`,
         `2xx=${result["2xx"]}`,
         `429=${result.non2xx}`,
+        overhead,
       ].join("  "),
     );
   } finally {
@@ -67,23 +83,30 @@ for (const scenario of scenarios) {
 
 async function createBenchmarkServer(scenario: Scenario): Promise<Server> {
   const app = express();
-  const clock = new ManualClock(Date.now());
-  const limiter = new RateLimiter({
-    store: new MemoryStore({ clock }),
-    clock,
-    defaultPolicy: scenario.policy,
-  });
 
-  app.get(
-    "/limited",
-    expressRateLimit({
-      limiter,
-      keyGenerator: () => scenario.key,
-    }),
-    (_request, response) => {
+  if (scenario.policy === undefined) {
+    app.get("/limited", (_request, response) => {
       response.json({ ok: true });
-    },
-  );
+    });
+  } else {
+    const clock = new ManualClock(Date.now());
+    const limiter = new RateLimiter({
+      store: new MemoryStore({ clock }),
+      clock,
+      defaultPolicy: scenario.policy,
+    });
+
+    app.get(
+      "/limited",
+      expressRateLimit({
+        limiter,
+        keyGenerator: () => scenario.key ?? "bench",
+      }),
+      (_request, response) => {
+        response.json({ ok: true });
+      },
+    );
+  }
 
   const server = createServer(app);
 
