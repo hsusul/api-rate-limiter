@@ -1,5 +1,7 @@
 # API Rate Limiter
-
+[![CI](https://github.com/hsusul/api-rate-limiter/actions/workflows/ci.yml/badge.svg)](https://github.com/hsusul/api-rate-limiter/actions/workflows/ci.yml)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 A production-style TypeScript/Node.js API rate limiter with pluggable algorithms, storage adapters, Express middleware, Redis-backed distributed mode, tests, and benchmarks.
 
 The core limiter is framework-independent. HTTP middleware and storage adapters sit on top of the same `RateLimiter` API.
